@@ -1,8 +1,11 @@
 ﻿using Infrastructure.Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace Infrastructure.Extention
 {
@@ -14,14 +17,7 @@ namespace Infrastructure.Extention
                 services.AddDbContext<PatientDbContext>(options =>
                     options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"),
                         b => b.MigrationsAssembly("Infrastructure")));
-            services.AddDefaultIdentity<IdentityUser>(options =>
-                {
-                    options.Password.RequireDigit = false;
-                    options.Password.RequireUppercase = false;
-                    options.Password.RequireNonAlphanumeric = false;
-                    options.Password.RequiredLength = 6;
-                })
-                    .AddEntityFrameworkStores<PatientDbContext>();
+ 
         }
         
     }
