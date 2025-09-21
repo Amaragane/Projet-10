@@ -85,7 +85,7 @@ namespace API.Controllers
                      var patient = _mapper.Map<Patient>(updatedPatient);
                      patient.Id = id;
                      await _patientService.UpdatePatientAsync(patient);
-                     return RedirectToAction(nameof(GetPatientById), new { id = patient.Id });
+                     return CreatedAtAction(nameof(GetPatientById), new { id = patient.Id }, patient);
                 }
                 catch (Exception ex)
                 {

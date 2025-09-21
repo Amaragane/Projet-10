@@ -1,6 +1,9 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\BackPatient",
+    "\\MediLabo"
   ],
+  "SelectedNode": "\\MediLabo\\MediLabo.sln",
   "PreviewInSolutionExplorer": false
 }

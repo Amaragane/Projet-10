@@ -33,10 +33,10 @@ namespace Infrastructure.Repositories
             _context.Patients.Add(patient);
             await _context.SaveChangesAsync();
         }
-        public async Task UpdatePatientAsync(Patient patient)
+        public async Task UpdatePatientAsync(Patient existingPatient, Patient newValues)
         {
  
-            _context.Entry(patient).CurrentValues.SetValues(patient);
+            _context.Entry(existingPatient).CurrentValues.SetValues(newValues);
             await _context.SaveChangesAsync();
         }
         public async Task DeletePatientAsync(int id)

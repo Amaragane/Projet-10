@@ -1,25 +1,42 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import LoginPage from './Pages/LoginPage';
+import PatientsPage from './Pages/PatientsPage';
+import PatientDetailsPage from './Pages/PatientDetailsPage';
+import { ProtectedRoute } from './components/ProtectedRoute';
+import AddPatientPage from './Pages/AddPatientPage';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+
+<Routes>
+  <Route path="/" element={<LoginPage />} />
+  <Route
+    path="/patients"
+    element={
+      <ProtectedRoute>
+        <PatientsPage />
+      </ProtectedRoute>
+    }
+  />
+  <Route
+    path="/patients/:id"
+    element={
+      <ProtectedRoute>
+        <PatientDetailsPage />
+      </ProtectedRoute>
+    }
+  />
+    <Route
+    path="/patients/add"
+    element={
+      <ProtectedRoute>
+        <AddPatientPage />
+      </ProtectedRoute>
+    }
+  />
+</Routes>
+    </BrowserRouter>
   );
 }
 

@@ -45,7 +45,7 @@ namespace Application.Services
                 throw new KeyNotFoundException($"Patient with ID {patient.Id} not found.");
             }
             var existingPatient = await GetPatientByIdAsync(patient.Id);
-            await _patientRepository.UpdatePatientAsync(existingPatient);
+            await _patientRepository.UpdatePatientAsync(existingPatient,patient);
         }
         public async Task DeletePatientAsync(int id)
         {
