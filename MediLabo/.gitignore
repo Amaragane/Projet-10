@@ -11,5 +11,5 @@
 # Build results
 bin/
 obj/
-
 # Etc, adapte selon tes besoins
+private_key.pem
