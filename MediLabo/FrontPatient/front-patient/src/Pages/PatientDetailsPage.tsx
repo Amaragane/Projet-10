@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { PatientForm } from '../components/PatientForm';
-
+interface Note {
+  _id: number;
+  patId : number;
+  content: string;
+}
 interface Patient {
   id: number;
   firstName: string;
@@ -16,6 +20,8 @@ export default function PatientDetailsPage() {
     const [successMessage, setSuccessMessage] = React.useState('');
   const { id } = useParams<{ id: string }>();
   const [patient, setPatient] = useState<Patient | null>(null);
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [newNote, setNewNote] = useState('');
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -26,7 +32,16 @@ export default function PatientDetailsPage() {
   });
   const [error, setError] = useState('');
   const navigate = useNavigate();
-
+  useEffect(() => {
+    const token = localStorage.getItem('jwtToken');
+    if (!token || !id) return;
+    fetch(`https://localhost:5002/api/patients/${id}/notes`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(res => res.json())
+      .then(setNotes)
+      .catch(() => setNotes([]));
+  }, [id]);
   useEffect(() => {
     const token = localStorage.getItem('jwtToken');
     if (!token || !id) {

@@ -15,6 +15,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PatientService", "PatientSe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gateway", "Gateway\Gateway.csproj", "{3717913F-A690-4AEF-BA3A-F5B571348432}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PatientNotesService", "PatientNotesService\PatientNotesService.csproj", "{30569860-4CFC-4EC7-A554-5721840C71DA}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PatientNotes", "PatientNotes", "{0C59F2D3-C603-4171-B565-B213A82B4A11}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +45,10 @@ Global
 		{3717913F-A690-4AEF-BA3A-F5B571348432}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3717913F-A690-4AEF-BA3A-F5B571348432}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3717913F-A690-4AEF-BA3A-F5B571348432}.Release|Any CPU.Build.0 = Release|Any CPU
+		{30569860-4CFC-4EC7-A554-5721840C71DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{30569860-4CFC-4EC7-A554-5721840C71DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{30569860-4CFC-4EC7-A554-5721840C71DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{30569860-4CFC-4EC7-A554-5721840C71DA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -50,6 +58,7 @@ Global
 		{03F316A0-9403-4E37-ADC5-4F188E68F157} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{A5E75EFD-8DAF-4938-A898-D8DF18E18F53} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{E778DF70-BB98-4F96-A587-94D75E0A598E} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{30569860-4CFC-4EC7-A554-5721840C71DA} = {0C59F2D3-C603-4171-B565-B213A82B4A11}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {97D2B5B9-F138-443D-968C-04AA20BFB82E}

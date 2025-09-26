@@ -13,13 +13,18 @@ public class AuthController : ControllerBase
     private readonly UserManager<IdentityUser> _userManager;
     private readonly SignInManager<IdentityUser> _signInManager;
     private readonly IConfiguration _configuration;
+    private readonly JwtTokenService _jwtTokenService;
 
-
-    public AuthController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, IConfiguration configuration)
+    public AuthController(
+    UserManager<IdentityUser> userManager,
+    SignInManager<IdentityUser> signInManager,
+    IConfiguration configuration,
+    JwtTokenService jwtTokenService)
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _configuration = configuration;
+        _jwtTokenService = jwtTokenService;
     }
 
     public class AuthLoginRequest
@@ -32,49 +37,17 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Login([FromBody] AuthLoginRequest request)
     {
         var user = await _userManager.FindByEmailAsync(request.Email);
-        if (user == null)
-        {
-            return Unauthorized("Invalid email or password");
-        }
-
+        if (user == null) return Unauthorized("Invalid email or password");
         var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, false);
-        if (!result.Succeeded)
-        {
-            return Unauthorized("Invalid email or password");
-        }
+        if (!result.Succeeded) return Unauthorized("Invalid email or password");
 
-        // À ce stade, l’authentification est réussie
-        // Générer un token JWT ou cookie selon ta config, ici exemple pour JWT :
-
-        var token = GenerateJwtToken(user); // implémente cette méthode selon ta configuration JWT
+        // Génére le JWT signé par RSA
+        var roles = await _userManager.GetRolesAsync(user);
+        var role = roles.Count > 0 ? roles[0] : "praticien"; // Par défaut praticien
+        var token = _jwtTokenService.GenerateToken(user.Id, role);
 
         return Ok(new { Token = token });
     }
 
-    private string GenerateJwtToken(IdentityUser user)
-    {
-        var jwtSettings = _configuration.GetSection("JwtSettings");
-        var secretKey = jwtSettings["SecretKey"];
-        var issuer = jwtSettings["Issuer"];
-        var audience = jwtSettings["Audience"];
-
-        var claims = new[]
-        {
-            new Claim(ClaimTypes.NameIdentifier, user.Id),
-            new Claim(ClaimTypes.Email, user.Email!)
-        };
-
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey!));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-        var token = new JwtSecurityToken(
-            issuer: issuer,
-            audience: audience,
-            claims: claims,
-            expires: DateTime.UtcNow.AddHours(1),
-            signingCredentials: creds);
-
-        return new JwtSecurityTokenHandler().WriteToken(token);
-    }
 
 }

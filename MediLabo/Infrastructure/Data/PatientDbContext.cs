@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Domain.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Domain.Entities;
 namespace Infrastructure.Data;
 public class PatientDbContext : IdentityDbContext
 {
@@ -13,7 +14,10 @@ public class PatientDbContext : IdentityDbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
+        modelBuilder.Entity<IdentityRole>().HasData(
+    new IdentityRole { Id = "1", Name = "organisateur", NormalizedName = "ORGANISATEUR" },
+    new IdentityRole { Id = "2", Name = "praticien", NormalizedName = "PRATICIEN" }
+);
         modelBuilder.Entity<Patient>().HasData(
             new Patient
             {

@@ -18,7 +18,7 @@ export default function LoginPage() {
       if (res.status === 401) {
     // Token expiré ou invalide
     localStorage.removeItem('jwtToken');
-    window.location.href = '/';
+    console.log(res.statusText);
     throw new Error('Unauthorized');
   }
       if (res.ok) {

@@ -5,6 +5,7 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>c043a64b-9cc5-435b-bbba-ef62022f7059</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,6 +24,8 @@
 	  </PackageReference>
 
 	  <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.8" />
+
+	  <PackageReference Include="SolrNet" Version="1.2.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
