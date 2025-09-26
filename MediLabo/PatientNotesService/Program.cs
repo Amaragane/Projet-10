@@ -10,18 +10,22 @@ var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 
 // Add services to the container.
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
 
 builder.Services.AddControllers();
 builder.Services.Configure<MongoSettings>(builder.Configuration.GetSection("MongoSettings"));
-builder.Services.AddSingleton<NotesService>();
+builder.Services.AddScoped<NotesService>();
+builder.Services.AddScoped<INoteRepository, NoteRepository>();
+
 var jwtSettings = configuration.GetSection("JwtSettings");
 string privateKeyPem = builder.Configuration["JwtPrivateKey"];
 var rsa = RSA.Create();
 
 // Charger la clé publique PEM exportée depuis la privée
 var rsaPublic = CreateRsaPublicKeyFromPem(privateKeyPem);
-// Configure JWT authentication comme dans ton autre service SQL,
-// avec la clé publique RSA et validation des audiences et issuer.
+
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -31,10 +35,20 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["JwtIssuer"],
-            ValidAudience = builder.Configuration["JwtAudience"],
+            ValidIssuer = jwtSettings["Issuer"],
+            ValidAudience = jwtSettings["Audience"],
             IssuerSigningKey = new RsaSecurityKey(rsaPublic)
         };
+        options.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = ctx =>
+            {
+                var logger = ctx.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>().CreateLogger("JwtBearer");
+                logger.LogError(ctx.Exception, "Authentication failed:");
+                return Task.CompletedTask;
+            }
+        };
+
     });
 
 

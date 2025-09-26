@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.IO;
+using System.Threading.Tasks;
 using DomainNote = PatientNotesService.Domain.Note;
-
 
 [ApiController]
 [Route("api/[controller]")]
@@ -16,28 +15,34 @@ public class NotesController : ControllerBase
         _notesService = notesService;
     }
 
-    [HttpGet]
-    public IActionResult GetNotes([FromQuery] int patientId)
+    // GET api/notes/{patientId}
+    [HttpGet("{patientId}")]
+    public async Task<IActionResult> GetNotes([FromRoute] int patientId)
     {
-        var notes = _notesService.GetNotesForPatient(patientId);
+        var notes = await _notesService.GetNotesForPatientAsync(patientId);
         return Ok(notes);
     }
 
+
+    // POST api/notes/{patientId}
     [HttpPost]
-    public IActionResult CreateNote([FromBody] DomainNote note)
+    public async Task<IActionResult> CreateNote(int patientId, [FromBody] DomainNote note)
     {
-        var createdNote = _notesService.Create(note);
+        note.PatId = patientId;
+        var createdNote = await _notesService.CreateAsync(note);
         return CreatedAtAction(nameof(GetNotes), new { patientId = createdNote.PatId }, createdNote);
     }
-    [HttpDelete]
-    public IActionResult DeleteNote([FromQuery] int noteId)
+
+    // DELETE api/notes/{noteId}
+    [HttpDelete("{noteId}")]
+    public async Task<IActionResult> DeleteNote( string noteId)
     {
-        var noteToDelete = _notesService.GetNote(noteId);
+        var noteToDelete = await _notesService.GetNoteByIdAsync(noteId);
         if (noteToDelete == null)
         {
             return NotFound();
         }
-        _notesService.Delete(noteToDelete);
+        await _notesService.DeleteAsync(noteId);
         return Ok();
     }
 }

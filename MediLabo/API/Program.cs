@@ -106,7 +106,7 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
-    app.UseCors();
+app.UseCors();
     await SeedUserAsync(app.Services);
 
     // Configure the HTTP request pipeline.

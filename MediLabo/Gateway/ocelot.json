@@ -25,31 +25,8 @@
       ]
     },
     {
-      "UpstreamPathTemplate": "/swagger/{everything}",
+      "UpstreamPathTemplate": "/api/notes/{everything}",
       "UpstreamHttpMethod": [ "GET", "POST", "DELETE", "PUT" ],
-      "DownstreamPathTemplate": "/swagger/{everything}",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 44348
-        }
-      ]
-    },
-    {
-      "DownstreamPathTemplate": "/api/notes",
-      "DownstreamScheme": "https",
-      "DownstreamHostAndPorts": [
-        {
-          "Host": "localhost",
-          "Port": 44310
-        }
-      ],
-      "UpstreamPathTemplate": "/notes",
-      "UpstreamHttpMethod": [ "GET", "POST", "PUT" ]
-
-    },
-    {
       "DownstreamPathTemplate": "/api/notes/{everything}",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
@@ -57,10 +34,7 @@
           "Host": "localhost",
           "Port": 44310
         }
-      ],
-      "UpstreamPathTemplate": "/notes/{everything}",
-      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ]
-
+      ]
     }
   ],
   "GlobalConfiguration": {
