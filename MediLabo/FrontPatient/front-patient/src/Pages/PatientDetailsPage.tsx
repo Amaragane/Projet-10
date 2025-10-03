@@ -4,6 +4,7 @@ import PatientInfo from '../components/PatientInfo';
 import NotesSection from '../components/NotesSection';
 import usePatientData from '../hooks/usePatientData';
 import usePatientNotes from '../hooks/usePatientNotes';
+import RiskLevelComponent from '../components/RiskLevel';
 
 export default function PatientDetailsPage() {
   const { id } = useParams<{ id: string }>();
@@ -34,6 +35,8 @@ export default function PatientDetailsPage() {
           onAddNote={addNote}
           error={notesError}
         />
+        <RiskLevelComponent patient={patient} notes={notes} />
+
       </div>
     </div>
   );

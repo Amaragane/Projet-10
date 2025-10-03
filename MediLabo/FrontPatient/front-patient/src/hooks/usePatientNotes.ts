@@ -18,6 +18,7 @@ export default function usePatientNotes(patientId: string) {
 
   function addNote() {
     const token = localStorage.getItem('jwtToken');
+    const content = newNote;
     if (!token || !patientId || !newNote.trim()) {
       setError('Note invalide ou authentification requise');
       return;
@@ -28,7 +29,7 @@ export default function usePatientNotes(patientId: string) {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`
       },
-      body: JSON.stringify({ content: newNote })
+      body: JSON.stringify(content)
     })
       .then(res => res.json())
       .then(addedNote => {

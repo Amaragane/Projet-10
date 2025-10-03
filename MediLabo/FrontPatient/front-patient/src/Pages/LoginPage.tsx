@@ -6,7 +6,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
-
+  
   const handleLogin = async () => {
     setError('');
     try {

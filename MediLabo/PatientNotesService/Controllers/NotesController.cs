@@ -25,11 +25,11 @@ public class NotesController : ControllerBase
 
 
     // POST api/notes/{patientId}
-    [HttpPost]
-    public async Task<IActionResult> CreateNote(int patientId, [FromBody] DomainNote note)
+    [HttpPost("{patientId}")]
+    public async Task<IActionResult> CreateNote([FromRoute] int patientId, [FromBody] string content)
     {
-        note.PatId = patientId;
-        var createdNote = await _notesService.CreateAsync(note);
+        var newNote = new DomainNote {PatId=patientId, Content= content };
+        var createdNote = await _notesService.CreateAsync(newNote);
         return CreatedAtAction(nameof(GetNotes), new { patientId = createdNote.PatId }, createdNote);
     }
 
