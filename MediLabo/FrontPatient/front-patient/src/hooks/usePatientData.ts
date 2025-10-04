@@ -15,7 +15,16 @@ export default function usePatientData(id: string, navigate: any) {
     fetch(`https://localhost:5002/api/patients/${id}`, {
       headers: { Authorization: `Bearer ${token}` }
     })
-      .then(res => res.json())
+      .then(res => 
+            {
+        if (res.status === 401 || res.status === 403) {
+          // Token expiré ou invalide
+          localStorage.removeItem('jwtToken');
+          window.location.href = '/';
+          throw new Error('Unauthorized');
+        }
+        return res.json();
+      })
       .then(data => {
         setPatient(data);
         setFormData({
@@ -52,6 +61,12 @@ export default function usePatientData(id: string, navigate: any) {
         id
       })
     }).then(res => {
+        if (res.status === 401 || res.status === 403) {
+          // Token expiré ou invalide
+          localStorage.removeItem('jwtToken');
+          window.location.href = '/';
+          throw new Error('Unauthorized');
+        }
       if (res.ok) {
         setError('');
         // Optionally show success message here
@@ -70,7 +85,14 @@ export default function usePatientData(id: string, navigate: any) {
     fetch(`https://localhost:5002/api/patients/${id}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${token}` }
-    }).then(res => {
+    }).then(res => 
+      {
+        if (res.status === 401 || res.status === 403) {
+          // Token expiré ou invalide
+          localStorage.removeItem('jwtToken');
+          window.location.href = '/';
+          throw new Error('Unauthorized');
+        }
       if (res.ok) {
         navigate('/patients');
       } else {

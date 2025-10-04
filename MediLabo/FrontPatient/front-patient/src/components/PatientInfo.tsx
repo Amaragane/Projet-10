@@ -19,7 +19,6 @@ export default function PatientInfo({ patient, onChange, onSubmit, onDelete, err
       {error && <p style={{color: 'red'}}>{error}</p>}
       
       <button onClick={navigateBack}>Retour à la liste</button>
-      <button onClick={onDelete} style={{color: 'red', marginLeft: '10px'}}>Supprimer</button>
     </>
   );
 }

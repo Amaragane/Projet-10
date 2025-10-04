@@ -26,6 +26,7 @@ export default function PatientDetailsPage() {
           error={patientError}
           navigateBack={() => navigate('/patients')}
         />
+        
       </div>
       <div style={{ flex: 1, borderLeft: '1px solid #ccc', paddingLeft: '1rem' }}>
         <NotesSection

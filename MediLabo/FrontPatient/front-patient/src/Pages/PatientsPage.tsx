@@ -22,7 +22,7 @@ export default function PatientsPage() {
       headers: { Authorization: `Bearer ${token}` }
     })
         .then(res => {
-    if (res.status === 401) {
+    if (res.status === 401 || res.status === 403) {
       // Token expiré ou invalide
       localStorage.removeItem('jwtToken');
       window.location.href = '/';
