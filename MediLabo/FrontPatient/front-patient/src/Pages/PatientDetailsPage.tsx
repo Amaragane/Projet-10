@@ -9,11 +9,11 @@ import RiskLevelComponent from '../components/RiskLevel';
 export default function PatientDetailsPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-
   const { patient, formData, setFormData, error: patientError, handleChange, handleSubmit, handleDelete } = usePatientData(id!, navigate);
   const { notes, newNote, setNewNote, error: notesError, addNote } = usePatientNotes(id!);
 
   if (!patient) return <div>Chargement...</div>;
+  if (!id) return <div>ID du patient non trouvé</div>;
 
   return (
     <div style={{ display: 'flex', gap: '2rem' }}>
@@ -36,7 +36,8 @@ export default function PatientDetailsPage() {
           onAddNote={addNote}
           error={notesError}
         />
-        <RiskLevelComponent patient={patient} notes={notes} />
+        
+        <RiskLevelComponent patientId={id} />
 
       </div>
     </div>

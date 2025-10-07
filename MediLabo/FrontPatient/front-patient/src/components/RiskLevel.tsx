@@ -1,79 +1,41 @@
-import React from 'react';
-
-interface Patient {
-  dateOfBirth: string;
-  gender: string;
-}
-
-interface Note {
-  content: string;
-}
+import React, { useEffect, useState } from 'react';
 
 interface Props {
-  patient: Patient;
-  notes: Note[];
+  patientId: string;
 }
 
-const RiskLevelComponent: React.FC<Props> = ({ patient, notes }) => {
-  // Fonction d'analyse du risque
-  function calculateRiskLevel(patient: Patient, notes: Note[]) {
-    const triggers = [
-      "hémoglobine a1c",
-      "microalbumine",
-      "taille",
-      "poids",
-      "fumeur",
-      "fumer",
-      "fumeuse",
-      "anormal",
-      "cholestérol",
-      "vertiges",
-      "vertige",
-      "rechute",
-      "réaction",
-      "anticorps"
-    ];
+const RiskLevelComponent: React.FC<Props> = ({ patientId }) => {
+  const [riskLevel, setRiskLevel] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-    // Calcul âge
-    const age = calculateAge(patient.dateOfBirth);
+  useEffect(() => {
+    const token = localStorage.getItem('jwtToken');
+    if (!token || !patientId) return;
 
-
-    // Trouver déclencheurs uniques dans les notes
-    const foundTriggers = new Set<string>();
-    notes.forEach(note => {
-      const content = note.content.toLowerCase();
-      triggers.forEach(trigger => {
-        if (content.includes(trigger)) {
-            console.log(trigger);
-          foundTriggers.add(trigger);
-        }
-      });
-    });
-
-    const countTriggers = foundTriggers.size;
-    console.log(countTriggers);
-    const isMale = patient.gender.toLowerCase() === 'm';
-
-    if (countTriggers === 0) return "None";
-    if (countTriggers >= 2 && countTriggers <= 5 && age > 30) return "Borderline";
-
-    if (age < 30) {
-      if (isMale) {
-        if (countTriggers >= 5) return "Early onset";
-        if (countTriggers >= 3) return "In Danger";
-      } else {
-        if (countTriggers >= 7) return "Early onset";
-        if (countTriggers >= 4) return "In Danger";
+    fetch(`https://localhost:5002/api/risklevel/${patientId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
       }
-    } else {
-      if (countTriggers >= 8) return "Early onset";
-      if (countTriggers === 6 || countTriggers === 7) return "In Danger";
-    }
+    })
+      .then(res => {
+        if (!res.ok) {
+          throw new Error('Erreur lors de la récupération du niveau de risque');
+        }
+        return res.json();
+      })
+      .then(data => {
+        // Adapte le champ selon la réponse du backend : ici 'level' ou le type renvoyé
+        setRiskLevel(data.level || data);
+      })
+      .catch(err => {
+        setError(err.message || 'Erreur inconnue');
+        setRiskLevel(null);
+      });
+  }, [patientId]);
 
-    return "None";
-  }
-
-  const riskLevel = calculateRiskLevel(patient, notes);
+  if (error) return <div style={{color: 'red'}}>Erreur : {error}</div>;
+  if (!riskLevel) return <div>Calcul du risque en cours...</div>;
 
   return (
     <div>
@@ -81,21 +43,5 @@ const RiskLevelComponent: React.FC<Props> = ({ patient, notes }) => {
     </div>
   );
 };
-function calculateAge(birthDateString: string): number {
-  const today = new Date();
-  const birthDate = new Date(birthDateString);
-
-  let age = today.getFullYear() - birthDate.getFullYear();
-
-  const monthDifference = today.getMonth() - birthDate.getMonth();
-  const dayDifference = today.getDate() - birthDate.getDate();
-
-  if (monthDifference < 0 || (monthDifference === 0 && dayDifference < 0)) {
-    age--;
-  }
-
-  return age;
-}
-
 
 export default RiskLevelComponent;
