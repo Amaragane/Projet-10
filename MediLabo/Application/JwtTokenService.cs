@@ -10,19 +10,23 @@ public class JwtTokenService
     private readonly IConfiguration _configuration;
     private readonly string _issuer;
     private readonly string _audience;
-    public JwtTokenService(IConfiguration configuration)
+    public JwtTokenService(IConfiguration configuration, string privateKeyFilePath = null!)
     {
-        // Exemple : chargement clé privée depuis PEM (ici simplifié avec key RSA générée à la volée)
         _configuration = configuration;
         var jwtSettings = configuration.GetSection("JwtSettings");
 
         _issuer = jwtSettings["Issuer"] ?? "ChangeMeIssuer";
         _audience = jwtSettings["Audience"] ?? "ChangeMeAudience";
-        string privateKeyPem = _configuration["JwtPrivateKey"];
-        _privateKey = CreateRsaFromPem(privateKeyPem);
 
-        // En production, charge la clé privée depuis fichier sécurisé ou vault
+        string privateKeyPem;
+        privateKeyPem = File.ReadAllText(privateKeyFilePath);
+        Console.WriteLine($"privateKeyPem length = {privateKeyPem.Length}");
+        Console.WriteLine(privateKeyPem.Substring(0, 50));  // affiche un extrait
+
+
+        _privateKey = CreateRsaFromPem(privateKeyPem);
     }
+
 
     private RSA CreateRsaFromPem(string privateKeyPem)
     {

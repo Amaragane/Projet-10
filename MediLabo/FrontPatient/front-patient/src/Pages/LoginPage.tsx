@@ -19,18 +19,20 @@ export default function LoginPage() {
     // Token expiré ou invalide
     localStorage.removeItem('jwtToken');
     console.log(res.statusText);
-    throw new Error('Unauthorized');
+    throw new Error(res.statusText);
   }
-      if (res.ok) {
-        const data = await res.json();
-        localStorage.setItem('jwtToken', data.token);
-        navigate('/patients');
-      } else {
-        setError('Erreur authentification');
-      }
-    } catch {
-      setError('Erreur réseau');
+    if (res.ok) {
+      const data = await res.json();
+      localStorage.setItem('jwtToken', data.token);
+      navigate('/patients');
+    } else {
+      setError(`Erreur d'authentification : ${res.status} - ${res.statusText}`);
+      console.error(`Erreur d'authentification : ${res.status} - ${res.statusText}`);
     }
+  } catch (error: any) {
+    setError(`Erreur réseau ou certificat : ${error.message || error}`);
+    console.error('Détail de l\'erreur catchée:', error);
+  }
   };
 
   return (

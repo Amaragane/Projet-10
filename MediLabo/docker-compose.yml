@@ -1,15 +1,41 @@
 
 
 services:
-  backend:
+  patientservice:
     build:
       context: ./
       dockerfile: API/Dockerfile
     ports:
       - "5001:5001"
+    depends_on:
+      - sqlserver
+    volumes:
+      - ./certs:/https:ro
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/localhost.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=MyPassword123
 
+    secrets:
+      - jwt_private_key
+      - jwt_public_key
+  patientnotesservice:
+    build:
+      context: ./
+      dockerfile: PatientNotesService/Dockerfile
+    ports:
+      - "5003:5003"
+    depends_on:
+      - mongodb
+    volumes:
+      - ./certs:/https:ro
+    environment:
+
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/localhost.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=MyPassword123
+    secrets:
+    - jwt_public_key
   gateway:
     build:
       context: ./gateway
@@ -17,8 +43,25 @@ services:
     ports:
       - "5002:5002"
     depends_on:
-      - backend
+      - patientservice
+      - patientnotesservice
+    volumes:
+      - ./certs:/https:ro
 
+    environment:
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/localhost.pfx
+      - ASPNETCORE_Kestrel__Certificates__Default__Password=MyPassword123
+  risklevelservice:
+    build: 
+      context: ./
+      dockerfile: Risklevelservice/Dockerfile
+    ports:
+      - "5004:5004"
+    depends_on:
+      - patientservice
+      - patientnotesservice
+      - sqlserver
+      - mongodb
   frontend:
     build:
       context: ./FrontPatient/front-patient
@@ -27,3 +70,31 @@ services:
       - "3000:80"
     depends_on:
       - gateway
+
+  
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      SA_PASSWORD: "YourStrong!Passw0rd"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserverdata:/var/opt/mssql
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodata:/data/db
+
+secrets:
+  jwt_private_key:
+    file: ./private_key.pem
+  jwt_public_key:
+    file: ./public_key.pem
+volumes:
+  sqlserverdata:
+  mongodata:
+

@@ -4,26 +4,27 @@
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 USER $APP_UID
 WORKDIR /app
-EXPOSE 5004
+EXPOSE 8080
+EXPOSE 8081
 
 
 # Cette phase est utilisée pour générer le projet de service
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["RiskLevelService/RiskLevelService.csproj", "RiskLevelService/"]
-RUN dotnet restore "./RiskLevelService/RiskLevelService.csproj"
+COPY ["PatientNotesService/PatientNotesService.csproj", "PatientNotesService/"]
+RUN dotnet restore "./PatientNotesService/PatientNotesService.csproj"
 COPY . .
-WORKDIR "/src/RiskLevelService"
-RUN dotnet build "./RiskLevelService.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/PatientNotesService"
+RUN dotnet build "./PatientNotesService.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # Cette étape permet de publier le projet de service à copier dans la phase finale
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./RiskLevelService.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./PatientNotesService.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 # Cette phase est utilisée en production ou lors de l’exécution à partir de VS en mode normal (par défaut quand la configuration de débogage n’est pas utilisée)
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "RiskLevelService.dll"]
+ENTRYPOINT ["dotnet", "PatientNotesService.dll"]

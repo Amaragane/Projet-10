@@ -5,9 +5,9 @@
     using Infrastructure.Extention;
     using Microsoft.AspNetCore.Authentication.JwtBearer;
     using Microsoft.AspNetCore.Identity;
-    using Microsoft.IdentityModel.Tokens;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
     using Microsoft.OpenApi.Models;
-using SolrNet;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -18,9 +18,9 @@ using System.Text;
 // Add services to the container.
     builder.Configuration.AddUserSecrets<Program>();
 
-    builder.Services.AddSingleton(new JwtTokenService(builder.Configuration));
 //Mise en place de l'infrastructure et la BDD
 builder.Services.AddInfrastructure(configuration);
+
     builder.Services.AddServices();
     builder.Services.AddRepositories();
     builder.Services.AddControllers();
@@ -61,11 +61,13 @@ if (useSwagger)
         .AddRoles<IdentityRole>()
          .AddEntityFrameworkStores<PatientDbContext>();
     var jwtSettings = configuration.GetSection("JwtSettings");
-    string privateKeyPem = builder.Configuration["JwtPrivateKey"];
-var rsa = RSA.Create();
+string publicKeyPem = await File.ReadAllTextAsync("/run/secrets/jwt_public_key");
 
-// Charger la clé publique PEM exportée depuis la privée
-var rsaPublic = CreateRsaPublicKeyFromPem(privateKeyPem);
+// Créez une instance RSA à partir de la clé publique PEM
+RSA rsa = RSA.Create();
+rsa.ImportFromPem(publicKeyPem.ToCharArray());
+
+var rsaSecurityKey = new RsaSecurityKey(rsa);
 
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -79,7 +81,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             ValidIssuer = jwtSettings["Issuer"],
             ValidAudience = jwtSettings["Audience"],
-            IssuerSigningKey = new RsaSecurityKey(rsaPublic)
+            IssuerSigningKey = rsaSecurityKey
         };
         options.Events = new JwtBearerEvents
         {
@@ -92,6 +94,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
 
     });
+builder.Services.AddSingleton<JwtTokenService>(sp =>
+    new JwtTokenService(
+        builder.Configuration,
+        "/run/secrets/jwt_private_key"));  // chemin du secret Docker
 
 
 builder.Services.AddCors(options =>
@@ -107,7 +113,6 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 app.UseCors();
-    await SeedUserAsync(app.Services);
 
     // Configure the HTTP request pipeline.
     if (useSwagger)
@@ -121,14 +126,27 @@ app.UseCors();
 
 
     }
-    app.UseAuthentication();
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<PatientDbContext>();
+    try
+    {
+        dbContext.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Erreur migration base : {ex.Message}");
+        throw;
+    }
+}
+    await SeedUserAsync(app.Services);
+app.UseAuthentication();
     app.UseAuthorization();
 
     app.UseHttpsRedirection();
 
 
 app.MapControllers();
-    //app.Urls.Add("https://localhost:5001");
     app.Run();
 
 async Task SeedUserAsync(IServiceProvider services)
@@ -161,21 +179,4 @@ async Task SeedUserAsync(IServiceProvider services)
         await userManager.AddToRoleAsync(userPraticien, "praticien");
     }
 }
-static RSA CreateRsaPublicKeyFromPem(string privateKeyPem)
-{
-    var rsa = RSA.Create();
-    var base64 = privateKeyPem
-        .Replace("-----BEGIN PRIVATE KEY-----", "")
-        .Replace("-----END PRIVATE KEY-----", "")
-        .Replace("\n", "")
-        .Replace("\r", "")
-        .Trim();
-    var privateKeyBytes = Convert.FromBase64String(base64);
-    rsa.ImportPkcs8PrivateKey(privateKeyBytes, out _);
 
-    var publicKey = rsa.ExportSubjectPublicKeyInfo();
-    var rsaPublic = RSA.Create();
-    rsaPublic.ImportSubjectPublicKeyInfo(publicKey, out _);
-
-    return rsaPublic;
-}

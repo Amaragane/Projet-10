@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using MongoDB.Driver;
 using Services;
 using System.Security.Cryptography;
 using DomainNote = PatientNotesService.Domain.Note;
@@ -14,16 +15,26 @@ builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
 builder.Services.AddControllers();
+var mongoSettings = builder.Configuration.GetSection("MongoSettings");
+string mongoConnStr = mongoSettings["ConnectionString"]!;
+string mongoDbName = mongoSettings["DatabaseName"]!;
+
+builder.Services.AddSingleton<IMongoClient>(new MongoClient(mongoConnStr));
+builder.Services.AddSingleton<IMongoDatabase>(sp =>
+    sp.GetRequiredService<IMongoClient>().GetDatabase(mongoDbName));
 builder.Services.Configure<MongoSettings>(builder.Configuration.GetSection("MongoSettings"));
+
 builder.Services.AddScoped<NotesService>();
 builder.Services.AddScoped<INoteRepository, NoteRepository>();
 
 var jwtSettings = configuration.GetSection("JwtSettings");
-string privateKeyPem = builder.Configuration["JwtPrivateKey"];
-var rsa = RSA.Create();
+string publicKeyPem = await File.ReadAllTextAsync("/run/secrets/jwt_public_key");
 
-// Charger la clé publique PEM exportée depuis la privée
-var rsaPublic = CreateRsaPublicKeyFromPem(privateKeyPem);
+// Créez une instance RSA à partir de la clé publique PEM
+RSA rsa = RSA.Create();
+rsa.ImportFromPem(publicKeyPem.ToCharArray());
+
+var rsaSecurityKey = new RsaSecurityKey(rsa);
 
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -37,7 +48,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             ValidIssuer = jwtSettings["Issuer"],
             ValidAudience = jwtSettings["Audience"],
-            IssuerSigningKey = new RsaSecurityKey(rsaPublic)
+            IssuerSigningKey = rsaSecurityKey
         };
         options.Events = new JwtBearerEvents
         {
@@ -86,22 +97,4 @@ async Task SeedNotesAsync(IServiceProvider services)
 
     if (!existingNotes.Any())
         await notesService.InsertManyAsync(defaultNotes);
-}
-static RSA CreateRsaPublicKeyFromPem(string privateKeyPem)
-{
-    var rsa = RSA.Create();
-    var base64 = privateKeyPem
-        .Replace("-----BEGIN PRIVATE KEY-----", "")
-        .Replace("-----END PRIVATE KEY-----", "")
-        .Replace("\n", "")
-        .Replace("\r", "")
-        .Trim();
-    var privateKeyBytes = Convert.FromBase64String(base64);
-    rsa.ImportPkcs8PrivateKey(privateKeyBytes, out _);
-
-    var publicKey = rsa.ExportSubjectPublicKeyInfo();
-    var rsaPublic = RSA.Create();
-    rsaPublic.ImportSubjectPublicKeyInfo(publicKey, out _);
-
-    return rsaPublic;
 }

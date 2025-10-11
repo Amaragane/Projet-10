@@ -7,8 +7,8 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 44348
+          "Host": "patientservice",
+          "Port": 5001
         }
       ]
     },
@@ -19,8 +19,8 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 44348
+          "Host": "patientservice",
+          "Port": 5001
         }
       ]
     },
@@ -31,20 +31,20 @@
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
-          "Host": "localhost",
-          "Port": 44310
+          "Host": "patientnotesservice",
+          "Port": 5003
         }
       ]
     },
     {
-      "UpstreamPathTemplate": "/api/risk/{everything}",
+      "UpstreamPathTemplate": "/api/risklevel/{everything}",
       "UpstreamHttpMethod": [ "GET" ],
-      "DownstreamPathTemplate": "/api/notes/{everything}",
+      "DownstreamPathTemplate": "/api/risklevel/{everything}",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
           "Host": "localhost",
-          "Port": 44347
+          "Port": 5004
         }
       ]
     }

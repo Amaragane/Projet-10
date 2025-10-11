@@ -4,7 +4,6 @@ using RiskLevelService.Services;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
 public class RiskLevelController : ControllerBase
 {
     private readonly IRiskService _riskLevelService;
@@ -15,7 +14,7 @@ public class RiskLevelController : ControllerBase
     }
 
     [HttpGet("{patientId}")]
-    public async Task<IActionResult> GetRiskLevel([FromRoute] string patientId)
+    public async Task<IActionResult> GetRiskLevel(string patientId)
     {
         var token = Request.Headers["Authorization"].FirstOrDefault()?.Replace("Bearer ", "");
         if (string.IsNullOrEmpty(token))
@@ -26,6 +25,6 @@ public class RiskLevelController : ControllerBase
         if (result == null)
             return NotFound();
 
-        return Ok(result);
+        return Ok(new { level = result });
     }
 }
