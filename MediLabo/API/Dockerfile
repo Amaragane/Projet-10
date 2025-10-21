@@ -1,5 +1,7 @@
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
 EXPOSE 5001
 RUN apt-get update && apt-get install -y libgssapi-krb5-2
 
@@ -19,5 +21,7 @@ RUN dotnet publish "API/API.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "API.dll"]

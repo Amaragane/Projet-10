@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+ï»¿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
@@ -30,7 +30,7 @@ builder.Services.AddScoped<INoteRepository, NoteRepository>();
 var jwtSettings = configuration.GetSection("JwtSettings");
 string publicKeyPem = await File.ReadAllTextAsync("/run/secrets/jwt_public_key");
 
-// Créez une instance RSA à partir de la clé publique PEM
+// CrÃ©ez une instance RSA Ã  partir de la clÃ© publique PEM
 RSA rsa = RSA.Create();
 rsa.ImportFromPem(publicKeyPem.ToCharArray());
 
@@ -81,19 +81,26 @@ async Task SeedNotesAsync(IServiceProvider services)
 {
     var defaultNotes = new List<DomainNote>
     {
-        new DomainNote { PatId = 1, Content = "Le patient déclare qu'il 'se sent très bien' Poids égal ou inférieur au poids recommandé" },
-        new DomainNote { PatId = 2, Content = "Le patient déclare qu'il ressent beaucoup de stress au travail Il se plaint également que son audition est anormale dernièrement" },
-        new DomainNote { PatId = 2, Content = "Le patient déclare avoir fait une réaction aux médicaments au cours des 3 derniers mois Il remarque également que son audition continue d'être anormale" },
-        new DomainNote { PatId = 3, Content = "Le patient déclare qu'il fume depuis peu" },
-        new DomainNote { PatId = 3, Content = "Le patient déclare qu'il est fumeur et qu'il a cessé de fumer l'année dernière Il se plaint également de crises d’apnée respiratoire anormales Tests de laboratoire indiquant un taux de cholestérol LDL élevé" },
-        new DomainNote { PatId = 4, Content = "Le patient déclare qu'il lui est devenu difficile de monter les escaliers Il se plaint également d’être essoufflé Tests de laboratoire indiquant que les anticorps sont élevés Réaction aux médicaments" },
-        new DomainNote { PatId = 4, Content = "Le patient déclare qu'il a mal au dos lorsqu'il reste assis pendant longtemps" },
-        new DomainNote { PatId = 4, Content = "Le patient déclare avoir commencé à fumer depuis peu Hémoglobine A1C supérieure au niveau recommandé" },
-        new DomainNote { PatId = 4, Content = "Taille, Poids, Cholestérol, Vertige et Réaction" }
+        new DomainNote { PatId = 1, Content = "Le patient dÃ©clare qu'il 'se sent trÃ¨s bien' Poids Ã©gal ou infÃ©rieur au poids recommandÃ©" },
+        new DomainNote { PatId = 2, Content = "Le patient dÃ©clare qu'il ressent beaucoup de stress au travail Il se plaint Ã©galement que son audition est anormale derniÃ¨rement" },
+        new DomainNote { PatId = 2, Content = "Le patient dÃ©clare avoir fait une rÃ©action aux mÃ©dicaments au cours des 3 derniers mois Il remarque Ã©galement que son audition continue d'Ãªtre anormale" },
+        new DomainNote { PatId = 3, Content = "Le patient dÃ©clare qu'il fume depuis peu" },
+        new DomainNote { PatId = 3, Content = "Le patient dÃ©clare qu'il est fumeur et qu'il a cessÃ© de fumer l'annÃ©e derniÃ¨re Il se plaint Ã©galement de crises dâ€™apnÃ©e respiratoire anormales Tests de laboratoire indiquant un taux de cholestÃ©rol LDL Ã©levÃ©" },
+        new DomainNote { PatId = 4, Content = "Le patient dÃ©clare qu'il lui est devenu difficile de monter les escaliers Il se plaint Ã©galement dâ€™Ãªtre essoufflÃ© Tests de laboratoire indiquant que les anticorps sont Ã©levÃ©s RÃ©action aux mÃ©dicaments" },
+        new DomainNote { PatId = 4, Content = "Le patient dÃ©clare qu'il a mal au dos lorsqu'il reste assis pendant longtemps" },
+        new DomainNote { PatId = 4, Content = "Le patient dÃ©clare avoir commencÃ© Ã  fumer depuis peu HÃ©moglobine A1C supÃ©rieure au niveau recommandÃ©" },
+        new DomainNote { PatId = 4, Content = "Taille, Poids, CholestÃ©rol, Vertige et RÃ©action" }
     };
     using var scope = services.CreateScope();
     var notesService = scope.ServiceProvider.GetRequiredService<NotesService>();
     var existingNotes = await notesService.GetAllAsync();
+    //if (existingNotes.Any())
+    //{
+    //    foreach (var note in existingNotes)
+    //        await notesService.DeleteAsync(note.Id);
+    //    await notesService.InsertManyAsync(defaultNotes);
+
+    //}
 
     if (!existingNotes.Any())
         await notesService.InsertManyAsync(defaultNotes);

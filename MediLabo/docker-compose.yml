@@ -6,7 +6,7 @@ services:
       context: ./
       dockerfile: API/Dockerfile
     ports:
-      - "5001:5001"
+      - "5001"
     depends_on:
       - sqlserver
     volumes:
@@ -24,7 +24,7 @@ services:
       context: ./
       dockerfile: PatientNotesService/Dockerfile
     ports:
-      - "5003:5003"
+      - "5003"
     depends_on:
       - mongodb
     volumes:
@@ -56,7 +56,7 @@ services:
       context: ./
       dockerfile: Risklevelservice/Dockerfile
     ports:
-      - "5004:5004"
+      - "5004"
     depends_on:
       - patientservice
       - patientnotesservice
@@ -78,14 +78,14 @@ services:
       SA_PASSWORD: "YourStrong!Passw0rd"
       ACCEPT_EULA: "Y"
     ports:
-      - "1433:1433"
+      - "1433"
     volumes:
       - sqlserverdata:/var/opt/mssql
 
   mongodb:
     image: mongo:latest
     ports:
-      - "27017:27017"
+      - "27017"
     volumes:
       - mongodata:/data/db
 

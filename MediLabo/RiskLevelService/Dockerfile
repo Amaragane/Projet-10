@@ -4,6 +4,8 @@
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 USER $APP_UID
 WORKDIR /app
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
 EXPOSE 5004
 
 

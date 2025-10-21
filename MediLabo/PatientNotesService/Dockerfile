@@ -4,6 +4,8 @@
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 USER $APP_UID
 WORKDIR /app
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
 EXPOSE 8080
 EXPOSE 8081
 
@@ -26,5 +28,7 @@ RUN dotnet publish "./PatientNotesService.csproj" -c $BUILD_CONFIGURATION -o /ap
 # Cette phase est utilisée en production ou lors de l’exécution à partir de VS en mode normal (par défaut quand la configuration de débogage n’est pas utilisée)
 FROM base AS final
 WORKDIR /app
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "PatientNotesService.dll"]
